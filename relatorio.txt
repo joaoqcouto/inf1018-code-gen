@@ -1,0 +1,24 @@
+João Quintella do Couto - Matrícula 2010798 - Turma 3WB
+
+
+De maneira geral, essa função compiladora funciona da seguinte maneira:
+
+- Cria um vetor auxiliar para se guardar onde que uma linha em LinS se inicia no código de máquina (necessário para desvios).
+
+- Define, dentro da própria função, três 'funções auxiliares' de adição, subtração e multiplicação, que sempre usam os parâmetros 1 e 2 (%edi e %esi) como operandos e retornam a resposta no %eax.
+
+- Separa um espaço de 32 bytes na pilha. Destes, 24 são usados para guardar os 2 parâmetros e as 4 variáveis (todos inteiros).
+
+- Guarda os dois parâmetros iniciais na pilha.
+
+Daí, a cada operação a função coloca os operandos requisitados nos registradores %edi e %esi, chama a função da operação, e depois sobrescreve na pilha o resultado da operação no endereço da variável que deve receber esse resultado (um dos 2 parâmetros/4 variáveis).
+
+A função principal então é composta basicamente de operadores 'mov' para colocar e tirar valores da pilha e de operadores 'call' para chamar as funções de cada operação.
+
+A instrução de desvio funciona inserindo um código que move um parâmetro/variável para o registrador %esi e em seguida compara esse registrador com 0, com um pulo condicional (jnz) para um outro endereço do código através de um offset:
+
+- Caso o pulo condicional seja feito para uma linha anterior à do condicional, o endereço da linha para onde o desvio vai é recuperado do vetor auxiliar, e o offset a partir da posição atual é calculada e inserida no endereço do pulo.
+
+- Caso o pulo condicional seja feito para uma linha ainda não atingida, a posição atual em código de maquina é escrita no vetor auxiliar, na posição da linha para o qual o pulo será feita. Assim, na função principal, caso a posição do vetor auxiliar já tenha um valor, sabe-se que a linha atual é endereço de um pulo passado, e assim o código sobrescreve o endereço do pulo passado com o offset em relação a linha atual.
+
+Por último, o retorno coloca no registrador %eax a informação que está no local da variável v1 na pilha e retorna.
